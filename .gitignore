@@ -1,0 +1,8 @@
+#build sctipt
+build
+
+#old vresion
+main1.c
+
+#executable file
+life
