@@ -1,24 +1,20 @@
 #include <malloc.h>
 #include "List.h"
 
-int create_list(Node ** head)
+Node * create_list()
 {
-//	if(head)
-//		return -1;
-	*head = (Node*) malloc(sizeof(Node));
-	if(! head)
-		return -2;
-	(*head)->next = 0;
-	(*head)->indx = 0;
-	return 0;
+	Node * head = (Node*) malloc(sizeof(Node));
+	head->next = 0;
+	head->indx = 0;
+	return head;
 }
 
 void delete_list(Node ** head)
 {
 	if(head)
 	{	
-		Node * iter = head;
-		Node * tmp = 0;
+		Node * iter = (*head);
+		Node * tmp = 0;		
 		while(iter)
 		{
 			tmp = iter->next;
@@ -26,26 +22,38 @@ void delete_list(Node ** head)
 			iter = tmp;
 		}
 	}
+	(*head) = 0;
 }
 
 int push_back(Node * head, int indx)
 {
-	Node * iter = head;
-	while(iter->next)
+	Node * itr = head, * tmp;
+	while(itr)
 	{
-		if(iter->indx == indx)
+		if(itr->indx == indx)
 			return -1;
-		iter = iter->next;
+		tmp = itr;
+		itr = itr->next;
 	}
 	
-	iter->next = (Node*) malloc(sizeof(Node));
-	if(! iter->next)
-		return -2;
+	tmp->next = (Node*) malloc(sizeof(Node));
 	
-	iter = iter->next;
-	iter->next = 0;
-	iter->indx = indx;
+	itr = tmp->next;
+	itr->next = 0;
+	itr->indx = indx;
 	return 1;
+}
+
+Node * find_node(Node * head, int indx)
+{
+	Node * itr = head;
+	while(itr)
+	{
+		if(itr->indx == indx)
+			break;
+		itr = itr->next;
+	}
+	return itr;
 }
 
 int remove_node(Node ** head, Node * node)
@@ -54,31 +62,27 @@ int remove_node(Node ** head, Node * node)
 		return -1;
 
 	
-	Node * iter = head;
+	Node * itr = (*head);
 	Node * tmp = 0;
 	
-	if(node == head)
-	{	//?????
-		head = (*head)->next;
-		free(iter);
-		return 0;
-	}
-
-	while(iter->next)
-	{	//if the next node is what we are looking for
-		if(node == iter->next)
-		{
-			tmp = iter;
+	while(itr)
+	{
+		if(node == itr)
 			break;
-		}
-		iter = iter->next;
+
+		tmp = itr;
+		itr = itr->next;
 	}		
 	
 	if(! tmp)
-		return -2;
-	
-	iter = iter->next;	// node that need to be removed
-	tmp->next = iter->next;	// == tmp->next->next;
-	free(iter);
+	{
+		(*head) = itr->next;
+		free(itr);
+	}
+	else
+	{
+		tmp->next = itr->next;
+		free(itr);
+	}
 	return 0;
 }

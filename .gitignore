@@ -6,3 +6,10 @@ main1.c
 
 #executable file
 life
+
+#temporary Vim fiels
+.*.c.swp
+.*.h.swp
+
+#hmm
+.gitignore

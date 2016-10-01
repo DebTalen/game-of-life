@@ -36,15 +36,25 @@ void printField(Field * field)
 	{
 		for(int j = 0; j < field->size; ++j)
 			printf("%d", field->cur[i][j]);
-		printf("\n");
+		putchar("\n");
 	}
 	
 }
 
-// Need to remove memory checks
+void print_list(Node * head)
+{	
+	Node * itr = head;
+	while(itr)
+	{
+		printf("%d ", itr->indx);
+		itr = itr->next;
+	}
+	printf("\n");
+}
+
 int main(int argc, char ** argv)
 {
-//	srand(time(0));	
+	srand(time(0));	
 	/* Setting up a connection with the X server */
 	Display * dpy = XOpenDisplay(NULL);
 	if(dpy == NULL)	{
@@ -54,7 +64,7 @@ int main(int argc, char ** argv)
 	
 	int screen = DefaultScreen(dpy);
 	Window win = XCreateSimpleWindow(dpy, RootWindow(dpy, screen),
-			100, 50, 900, 900, 1,
+			50, 50, 900, 900, 1,
 		       	WhitePixel(dpy, screen), BlackPixel(dpy, screen));
 
 	XSelectInput(dpy, win, ExposureMask | KeyPressMask | StructureNotifyMask);
