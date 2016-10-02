@@ -18,12 +18,15 @@ int iniField(Field * field, int size)
 
 	for(int i = 0; i < size; ++i)
 		for(int j = 0; j < size; ++j)
-			field->cur[i][j] = rand()% 2;
+		{
+			field->cur[i][j] = rand() % 2;	//the first bit represent is the cell dead or alive
+			field->cur[i][j] |= 2;		//the second bit represent if the cell was changed in last step
+		}
 
 //	blinker
-/*	field->cur[1][1] = 1;
-	field->cur[2][1] = 1;
-	field->cur[3][1] = 1;*/
+/*	field->cur[1][1] |= 1;
+	field->cur[2][1] |= 1;
+	field->cur[3][1] |= 1; */
 //	toad
 /*	field->cur[1][1] = 1;
 	field->cur[1][2] = 1;
@@ -89,43 +92,40 @@ int calc_nbh(Field * field, Node * cell)
 	{
 		x = cell->nbs[i] / field->size;
 		y = cell->nbs[i] % field->size;
-		res += field->cur[x][y];
+		res += (field->cur[x][y] & 1);
 	}
 	return res;
 }
 
-/*int is_dead_area(Field * field, int x, int y)
+int is_dead_area(Field * field, Node * cell)
 {
-	int size = field->size, temp;
-	if(--x < 0) x += size;
-	if(--y < 0) y += size;
-	temp = y;
-
-	for(int i = 0; i < 3; ++i, x = (++x) % size, y = temp)
+	int x, y; 
+	for(int i = 0; i < 8; ++i)
 	{
-		for(int j = 0; j < 3; ++j, y = (++y) % size)
-		{
-			if(field->cur[x][y] != field->mem[x][y])
-				return 0;
-		}
+		x = cell->nbs[i] / field->size,
+		y = cell->nbs[i] % field->size;
+		if(field->cur[x][y] & 2)
+			return 0;				
 	}
 	return 1;
-}*/
+}
 
 void evolve(Field * field)
 {	
 	char nbh, i = 0, j = 0;
-	Node * itr = field->alive;
+	Node * itr = field->alive, * tmp;
 
-//	For future improvements
 	while(itr)
 	{
 		i = itr->indx / field->size;
 		j = itr->indx % field->size;
 
 		nbh = calc_nbh(field, itr);
-		field->mem[i][j] = field->cur[i][j] ? (nbh == 2 || nbh == 3) : nbh == 3;
-
+		field->mem[i][j] = (field->cur[i][j] & 1) ? (nbh == 2 || nbh == 3) : nbh == 3;
+		
+		if(field->mem[i][j] != field->cur[i][j])
+			field->mem[i][j] |= 2; // has changed
+			
 		itr = itr->next;
 	}
 

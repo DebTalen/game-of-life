@@ -21,7 +21,7 @@ void drawField(Field * field, Display * display, Window window, int width, int h
 	for(int i = 0; i < field->size; ++i)
 		for(int j = 0; j < field->size; ++j)
 		{
-			if(field->cur[i][j])
+			if(field->cur[i][j] & 1)
 			{
 				x = (j * cell_width) + j;
 				y = (i * cell_height) + i;
