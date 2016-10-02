@@ -20,6 +20,10 @@ int iniField(Field * field, int size)
 		for(int j = 0; j < size; ++j)
 			field->cur[i][j] = rand()% 2;
 
+//	blinker
+/*	field->cur[1][1] = 1;
+	field->cur[2][1] = 1;
+	field->cur[3][1] = 1;*/
 //	toad
 /*	field->cur[1][1] = 1;
 	field->cur[1][2] = 1;
@@ -32,7 +36,38 @@ int iniField(Field * field, int size)
 		push_back(field->alive, i);
 
 	field->size = size;
+	ini_nbh(field);
+
 	return 0;
+}
+
+void ini_nbh(Field * field)
+{	//need to rethink this function
+	Node * itr = field->alive;
+	int x, y, temp, it;
+	while(itr)
+	{
+		it = 0;
+		x = itr->indx % field->size;
+		y = itr->indx / field->size;
+
+		// warping bounds
+		if(--x < 0) x += field->size;
+		if(--y < 0) y += field->size;
+		temp = x;
+		
+		for(int i = 0; i < 3; ++i, y = (++y) % field->size, x = temp)
+		{
+			for(int j = 0; j < 3; ++j, x = (++x) % field->size)
+			{
+				if(i == 1 && j == 1)
+					continue;
+				itr->nbs[it] = (y * field->size) + x;
+ 				++it;
+			}
+		}
+		itr = itr->next;
+	}
 }
 
 void freeField(Field * field)
@@ -47,20 +82,14 @@ void freeField(Field * field)
 	delete_list( &(field->alive));
 }
 
-int calc_nbh(char ** arr, int x, int y, int size)
+int calc_nbh(Field * field, Node * cell)
 {
-	if(--x < 0) x += size;
-	if(--y < 0) y += size;
-	int res = 0, temp = y;
-
-	for(int i = 0; i < 3; ++i, x = (++x) % size, y = temp)
+	int x, y, res = 0;
+	for(int i = 0; i < 8; ++i)
 	{
-		for(int j = 0; j < 3; ++j, y = (++y) % size)
-		{
-			if(i == 1 && j == 1)
-				continue;
-			res += arr[x][y];
-		}
+		x = cell->nbs[i] / field->size;
+		y = cell->nbs[i] % field->size;
+		res += field->cur[x][y];
 	}
 	return res;
 }
@@ -88,32 +117,18 @@ void evolve(Field * field)
 	char nbh, i = 0, j = 0;
 	Node * itr = field->alive;
 
-	for(int i = 0; i < field->size; ++i)
-	{
-		for(int j = 0; j < field->size; ++j)
-		{
-			nbh = calc_nbh(field->cur, i, j, field->size);
-			field->mem[i][j] = field->cur[i][j] ? (nbh == 2 || nbh == 3) : nbh == 3;	
-		}
-	}
-
-/*	For future improvements
+//	For future improvements
 	while(itr)
 	{
 		i = itr->indx / field->size;
 		j = itr->indx % field->size;
 
-		nbh = calc_nbh(field->cur, i, j, field->size);
+		nbh = calc_nbh(field, itr);
 		field->mem[i][j] = field->cur[i][j] ? (nbh == 2 || nbh == 3) : nbh == 3;
-
-		if(is_dead_area(field, i, j))
-		{
-			there must be some optimization staff
-		}
 
 		itr = itr->next;
 	}
-*/
+
 	char ** p = field->cur;
 	field->cur = field->mem;
 	field->mem = p;

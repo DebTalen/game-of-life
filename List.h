@@ -6,6 +6,7 @@
 
 typedef struct _node {
 	int indx;
+	int nbs[8];	
 	struct _node * next;
 } Node;
 
