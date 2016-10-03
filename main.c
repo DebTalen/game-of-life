@@ -51,7 +51,8 @@ void print_list(Node * head)
 	}
 	printf("\n");
 }
-
+// TO DO:
+// Оптимизировать добавление в список (чтобы каждый раз не надо было инициализировать клетку и ее соседей) (отделить список живих клеток от самих клеток)
 int main(int argc, char ** argv)
 {
 	srand(time(0));	
@@ -79,7 +80,7 @@ int main(int argc, char ** argv)
 	XSetForeground(dpy, gc, WhitePixel(dpy, screen));
 		
 
-	const int FIELD_SIZE = 10;
+	const int FIELD_SIZE = 100;
 	Field field;
 
 	if(iniField(&field, FIELD_SIZE)) {
@@ -112,7 +113,7 @@ int main(int argc, char ** argv)
 		}
 		else
 		{
-			usleep(300 * 1000);	//better to use nanosleep()
+			usleep(600 * 1000);	//better to use nanosleep()
 			evolve(&field);
 			XClearWindow(dpy, win);
 		}

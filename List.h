@@ -12,7 +12,7 @@ typedef struct _node {
 
 Node * create_list();
 Node * find_node(Node * head, int indx);
-int push_back(Node * head, int indx);
+Node * push_back(Node * head, int indx);
 int remove_node(Node ** head, Node * node);
 void delete_list(Node ** head);
 

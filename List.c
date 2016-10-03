@@ -25,13 +25,13 @@ void delete_list(Node ** head)
 	(*head) = 0;
 }
 
-int push_back(Node * head, int indx)
+Node * push_back(Node * head, int indx)
 {
-	Node * itr = head, * tmp;
+	Node * itr = head, * tmp;	
 	while(itr)
 	{
-		if(itr->indx == indx)
-			return -1;
+		if(indx == itr->indx)
+			return 0;
 		tmp = itr;
 		itr = itr->next;
 	}
@@ -41,7 +41,7 @@ int push_back(Node * head, int indx)
 	itr = tmp->next;
 	itr->next = 0;
 	itr->indx = indx;
-	return 1;
+	return itr;
 }
 
 Node * find_node(Node * head, int indx)

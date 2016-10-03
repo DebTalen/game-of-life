@@ -1,6 +1,10 @@
 #include <malloc.h>
 #include "Field.h"
 
+/*
+   The first bit represent is the cell dead or alive
+   The second bit represent if the cell was changed in last step
+*/
 int iniField(Field * field, int size)
 {
 	if(size < 1)
@@ -17,59 +21,63 @@ int iniField(Field * field, int size)
 	}
 
 	for(int i = 0; i < size; ++i)
+	{
 		for(int j = 0; j < size; ++j)
 		{
-			field->cur[i][j] = rand() % 2;	//the first bit represent is the cell dead or alive
-			field->cur[i][j] |= 2;		//the second bit represent if the cell was changed in last step
+			field->cur[i][j] = rand() % 2;			
+			field->cur[i][j] |= 2;
 		}
+	}
 
 //	blinker
 /*	field->cur[1][1] |= 1;
 	field->cur[2][1] |= 1;
-	field->cur[3][1] |= 1; */
-//	toad
-/*	field->cur[1][1] = 1;
-	field->cur[1][2] = 1;
-	field->cur[1][3] = 1;
-	field->cur[2][0] = 1;
-	field->cur[2][1] = 1;
-	field->cur[2][2] = 1; */
+	field->cur[3][1] |= 1;*/
+
+//	glider
+/*	field->cur[0][1] |= 1;
+	field->cur[1][2] |= 1;
+	field->cur[2][0] |= 1;
+	field->cur[2][1] |= 1;
+	field->cur[2][2] |= 1;*/
+
 
 	for(int i = 1; i < size * size; ++i)
 		push_back(field->alive, i);
 
 	field->size = size;
-	ini_nbh(field);
+	Node * itr = field->alive;
+	while(itr)
+	{
+		ini_cell(itr, field->size);
+		itr = itr->next;
+	}
 
 	return 0;
 }
 
-void ini_nbh(Field * field)
+void ini_cell(Node * cell, int size)
 {	//need to rethink this function
-	Node * itr = field->alive;
-	int x, y, temp, it;
-	while(itr)
-	{
-		it = 0;
-		x = itr->indx % field->size;
-		y = itr->indx / field->size;
+	int x, y, nb = 0;
+	x = cell->indx % size;
+	y = cell->indx / size;
 
-		// warping bounds
-		if(--x < 0) x += field->size;
-		if(--y < 0) y += field->size;
-		temp = x;
-		
-		for(int i = 0; i < 3; ++i, y = (++y) % field->size, x = temp)
+	// warping bounds
+	if(--x < 0) x += size;
+	if(--y < 0) y += size;
+	int temp = x;
+
+	for(int i = 0; i < 3; ++i,
+			x = temp,
+			y = (++y) % size)
+	{
+		for(int j = 0; j < 3; ++j, x = (++x) % size)
 		{
-			for(int j = 0; j < 3; ++j, x = (++x) % field->size)
-			{
-				if(i == 1 && j == 1)
-					continue;
-				itr->nbs[it] = (y * field->size) + x;
- 				++it;
-			}
+			if(i == 1 && j == 1)
+				continue;
+			cell->nbs[nb] = (y * size) + x;
+			++nb;
 		}
-		itr = itr->next;
 	}
 }
 
@@ -110,8 +118,26 @@ int is_dead_area(Field * field, Node * cell)
 	return 1;
 }
 
+void printArr(char ** arr, int size)
+{
+	for(int i = 0; i < size; ++i)
+	{
+		for(int j = 0; j < size; ++j)
+			printf("%d", arr[i][j] & 3);
+		printf("\n");
+	}					
+}
+
+void add_cell(Node * head, int indx, int size)
+{
+	Node * tail = push_back(head, indx);
+	if(tail)
+		ini_cell(tail, size);	
+}
+
+
 void evolve(Field * field)
-{	
+{	//doesnt work
 	char nbh, i = 0, j = 0;
 	Node * itr = field->alive, * tmp;
 
@@ -123,11 +149,44 @@ void evolve(Field * field)
 		nbh = calc_nbh(field, itr);
 		field->mem[i][j] = (field->cur[i][j] & 1) ? (nbh == 2 || nbh == 3) : nbh == 3;
 		
-		if(field->mem[i][j] != field->cur[i][j])
-			field->mem[i][j] |= 2; // has changed
-			
+		if(field->mem[i][j] != (field->cur[i][j] & 1))
+		{	//if the cell will be changed
+			field->mem[i][j] |= 2;
+			for(int i = 0; i < 8; ++i)
+				add_cell(field->alive, itr->nbs[i], field->size);
+		}
+		else
+		{
+			if(is_dead_area(field, itr))
+			{
+				tmp = itr->next;
+				remove_node(&(field->alive), itr);
+				itr = tmp;
+				continue;
+			}
+		}
 		itr = itr->next;
 	}
+	
+/*	Node * new = create_list();
+	ini_cell(new, field->size);
+	itr = field->alive;
+	while(itr)
+	{	
+		i = itr->indx / field->size;
+		j = itr->indx % field->size;
+
+		if(field->mem[i][j] & 2)
+		{
+			add_cell(new, itr->indx, field->size);
+			for(int i = 0; i < 8; ++i)
+				add_cell(new, itr->nbs[i], field->size);
+		}
+		itr = itr->next;
+	}
+	
+	delete_list(&(field->alive));
+	field->alive = new;*/
 
 	char ** p = field->cur;
 	field->cur = field->mem;
