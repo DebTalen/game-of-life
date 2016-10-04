@@ -1,13 +1,12 @@
 #ifndef FILED_H
 #define FIELD_H
 #include "List.h"
-
-//typedef unsigned short ushort;
+#include "Cell.h"
 
 typedef struct {
-	int size;	//size x size
-	char ** cur,
-	     ** mem;
+	int size;	
+	Cell * cur,
+	     * mem;
 	Node * alive;
 } Field;
 

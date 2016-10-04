@@ -4,7 +4,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include "Field.h"
-#include "List.h"
 
 typedef enum { false, true } bool; // C99 has stdbool.h huh?
 
@@ -18,27 +17,15 @@ void drawField(Field * field, Display * display, Window window, int width, int h
 	if(cell_height < 1) 
 		cell_height = 1;
 	
-	for(int i = 0; i < field->size; ++i)
-		for(int j = 0; j < field->size; ++j)
-		{
-			if(field->cur[i][j] & 1)
-			{
-				x = (j * cell_width) + j;
-				y = (i * cell_height) + i;
-				XFillRectangle(display, window, gc, x, y, cell_width, cell_height); 
-			}
-		}		
-}
-
-void printField(Field * field)
-{
-	for(int i = 0; i < field->size; ++i)
+	for(int i = 0; i < field->size * field->size; ++i)
 	{
-		for(int j = 0; j < field->size; ++j)
-			printf("%d", field->cur[i][j]);
-		putchar("\n");
-	}
-	
+		if(field->cur[i].state & 1)
+		{
+			x = ((i % field->size) * cell_height) + (i % field->size);
+			y = ((i / field->size) * cell_width) + (i / field->size);
+			XFillRectangle(display, window, gc, x, y, cell_width, cell_height); 
+		}
+	}		
 }
 
 void print_list(Node * head)
@@ -52,7 +39,8 @@ void print_list(Node * head)
 	printf("\n");
 }
 // TO DO:
-// Оптимизировать добавление в список (чтобы каждый раз не надо было инициализировать клетку и ее соседей) (отделить список живих клеток от самих клеток)
+// Rethink evolve function (99 line) 
+// Add comments
 int main(int argc, char ** argv)
 {
 	srand(time(0));	
@@ -65,7 +53,7 @@ int main(int argc, char ** argv)
 	
 	int screen = DefaultScreen(dpy);
 	Window win = XCreateSimpleWindow(dpy, RootWindow(dpy, screen),
-			50, 50, 900, 900, 1,
+			50, 50, 800, 800, 1,
 		       	WhitePixel(dpy, screen), BlackPixel(dpy, screen));
 
 	XSelectInput(dpy, win, ExposureMask | KeyPressMask | StructureNotifyMask);
@@ -80,7 +68,7 @@ int main(int argc, char ** argv)
 	XSetForeground(dpy, gc, WhitePixel(dpy, screen));
 		
 
-	const int FIELD_SIZE = 100;
+	const int FIELD_SIZE = 50;
 	Field field;
 
 	if(iniField(&field, FIELD_SIZE)) {
@@ -113,7 +101,8 @@ int main(int argc, char ** argv)
 		}
 		else
 		{
-			usleep(600 * 1000);	//better to use nanosleep()
+			usleep(100 * 1000);	//better to use nanosleep()
+		//	print_list(field.alive);
 			evolve(&field);
 			XClearWindow(dpy, win);
 		}

@@ -5,7 +5,7 @@ Node * create_list()
 {
 	Node * head = (Node*) malloc(sizeof(Node));
 	head->next = 0;
-	head->indx = 0;
+	head->indx = 0;	
 	return head;
 }
 
@@ -60,7 +60,6 @@ int remove_node(Node ** head, Node * node)
 {
 	if(! head)
 		return -1;
-
 	
 	Node * itr = (*head);
 	Node * tmp = 0;
@@ -74,15 +73,11 @@ int remove_node(Node ** head, Node * node)
 		itr = itr->next;
 	}		
 	
-	if(! tmp)
-	{
+	if(! tmp)	// if node == head
 		(*head) = itr->next;
-		free(itr);
-	}
 	else
-	{
 		tmp->next = itr->next;
-		free(itr);
-	}
+	
+	free(itr);
 	return 0;
 }

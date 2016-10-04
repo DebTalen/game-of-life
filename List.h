@@ -1,12 +1,12 @@
 /*
- The simple implementation of singly-linked list
+ Simple implementation of singly-linked list
 */
 #ifndef LIST_H
 #define LIST_H
+#include "Cell.h"
 
 typedef struct _node {
 	int indx;
-	int nbs[8];	
 	struct _node * next;
 } Node;
 

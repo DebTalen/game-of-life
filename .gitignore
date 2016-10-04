@@ -11,5 +11,5 @@ life
 .*.c.swp
 .*.h.swp
 
-#hmm
-.gitignore
+#for tests
+Patterns.h
